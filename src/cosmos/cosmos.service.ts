@@ -32,7 +32,7 @@ export class CosmosService {
             const response = await lastValueFrom(
                 this.httpService.get(`${this.provider}/cosmos/base/tendermint/v1beta1/blocks/${height}`)
             );
-            console.log(response)
+
             const blockData = response.data;
             const block = blockData.block;
 
@@ -48,32 +48,31 @@ export class CosmosService {
     }
 
     // Получение транзакции по хешу
+    //http://localhost:3000/cosmos/transactions/0c1d9f2a51d90fb8306c1895c30babc3c484321bb54680e1917ae5c205bd4a28
     async getTransactionByHash(hash: string): Promise<TransactionData> {
         try {
-        const payload = {
-            jsonrpc: '2.0',
-            method: 'tx',
-            params: {
-            hash: hash,
-            },
-            id: 2,
-        };
-
         const response = await lastValueFrom(
-            this.httpService.post(this.provider, payload),
-        );
+                this.httpService.get(`${this.provider}/cosmos/tx/v1beta1/txs/${hash}`)
+            );
 
-        const tx = response.data.result;
+        const tx_data = response.data;
+        const tx_auth_info = tx_data.tx.auth_info
+
+        const sender = tx_data.tx.body.messages
+        .find(message => message["@type"] === "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward")
+        ?.delegator_address;
+
 
         return {
-            hash: tx.hash,
-            height: tx.height,
-            time: tx.timestamp,
-            gasUsed: tx.gas_used,
-            gasWanted: tx.gas_wanted,
-            fee: tx.fee.amount,
-            sender: tx.sender,
+            hash: tx_data.tx_response.txhash,
+            height: tx_data.tx_response.height,
+            time: tx_data.tx_response.timestamp,
+            gasUsed: tx_data.tx_response.gas_used,
+            gasWanted: tx_data.tx_response.gas_wanted,
+            fee: tx_data.tx_response.tx.auth_info.fee,
+            sender: sender
         };
+
         } catch (error) {
         throw new Error(`Failed to fetch transaction data: ${error.message}`);
         }

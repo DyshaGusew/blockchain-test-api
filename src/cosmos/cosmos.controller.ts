@@ -12,7 +12,7 @@ export class CosmosController {
   }
 
   @Get('transactions/:hash')
-  async getTransactionByHash(@Param('hash', ParseHexPipe) hash: string,) {
+  async getTransactionByHash(@Param('hash') hash: string,) {
     return this.cosmosService.getTransactionByHash(hash);
   }
 }

@@ -2,36 +2,36 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ethers } from 'ethers';
 
 export interface BlockData {
-  height: number;
-  hash: string;
-  parentHash: string;
-  gasLimit: string;
-  gasUsed: string;
-  size: number;
+    height: number;
+    hash: string;
+    parentHash: string;
+    gasLimit: number;
+    gasUsed: number;
+    size: number;
 }
 
 export interface TransactionData {
-  hash: string;
-  to: string | null;
-  from: string;
-  value: string;
-  input: string;
-  maxFeePerGas: string | null;
-  maxPriorityFeePerGas: string | null;
-  gasPrice: string | null;
+    hash: string;
+    to: string | null;
+    from: string;
+    value: string;
+    input: string;
+    maxFeePerGas: string | null;
+    maxPriorityFeePerGas: string | null;
+    gasPrice: string | null;
 }
 
 @Injectable()
 export class EvmService {
-  private readonly provider;
+    private readonly provider;
 
-  constructor() {
-    this.provider = new ethers.JsonRpcProvider('https://haqq-evm.publicnode.com/');
-}
+    constructor() {
+        this.provider = new ethers.JsonRpcProvider('https://haqq-evm.publicnode.com/');
+    }
 
-// Получение информации о блоке по номеру
-// http://localhost:3000/evm/block/0xe5cf9b
-    async getBlockByHeight(height: string): Promise<BlockData> {
+// Получение информации о блоке по высоте
+// http://localhost:3000/evm/block/15060891
+    async getBlockByHeight(height: number): Promise<BlockData> {
         try {
             const block = await this.provider.send('eth_getBlockByNumber', [height, false]);
 
@@ -40,13 +40,12 @@ export class EvmService {
         }
 
         return {
-            height: block.number,
+            height: parseInt(block.number, 16),
             hash: block.hash,
             parentHash: block.parentHash,
-            gasLimit: block.gasLimit,
-            gasUsed: block.gasUsed,
-            size: block.size,
-            //size: parseInt(block.size, 16),
+            gasLimit: parseInt(block.gasLimit, 16),
+            gasUsed: parseInt(block.gasUsed, 16),
+            size: parseInt(block.size, 16),
         };
         } catch (error) {
         throw new HttpException(

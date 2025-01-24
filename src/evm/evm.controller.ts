@@ -7,7 +7,7 @@ export class EvmController {
   constructor(private readonly evmService: EvmService) {}
 
   @Get('block/:height')
-  async getBlockByHeight(@Param('height', ParseHexPipe) height: string) {
+  async getBlockByHeight(@Param('height', ParseIntPipe) height: number) {
     return this.evmService.getBlockByHeight(height);
   }
 

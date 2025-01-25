@@ -1,0 +1,14 @@
+CREATE INDEX idx_test_txs_block_height ON test_txs(block_height);
+
+WITH limited_blocks AS (
+    SELECT block_height
+    FROM test_txs
+    ORDER BY block_height DESC
+    LIMIT 10
+)
+
+
+SELECT *
+FROM test_txs
+JOIN limited_blocks ON test_txs.block_height = limited_blocks.block_height;
+--WHERE block_height IN (SELECT block_height FROM limited_blocks);

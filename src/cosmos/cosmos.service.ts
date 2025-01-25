@@ -32,15 +32,15 @@ export class CosmosService {
             const response = await lastValueFrom(
                 this.httpService.get(`${this.provider}/cosmos/base/tendermint/v1beta1/blocks/${height}`)
             );
-
+            console.log(response.data)
             const blockData = response.data;
-            const block = blockData.block;
+            const blockHeader = blockData.block.header;
 
             return {
-                height: block.header.height,
-                time: block.header.time,
+                height: blockHeader.height,
+                time: blockHeader.time,
                 hash: blockData.block_id.hash,
-                proposerAddress: block.header.proposer_address,
+                proposerAddress: blockHeader.proposer_address,
             };
         } catch (error) {
         throw new Error(`Failed to fetch block data: ${error.message}`);
@@ -55,7 +55,7 @@ export class CosmosService {
                 this.httpService.get(`${this.provider}/cosmos/tx/v1beta1/txs/${hash}`)
             );
 
-        const tx_data = response.data;
+        const tx_data = response.data.tx_response;
         const tx_auth_info = tx_data.tx.auth_info
 
         const sender = tx_data.tx.body.messages
@@ -64,12 +64,12 @@ export class CosmosService {
 
 
         return {
-            hash: tx_data.tx_response.txhash,
-            height: tx_data.tx_response.height,
-            time: tx_data.tx_response.timestamp,
-            gasUsed: tx_data.tx_response.gas_used,
-            gasWanted: tx_data.tx_response.gas_wanted,
-            fee: tx_data.tx_response.tx.auth_info.fee,
+            hash: tx_data.txhash,
+            height: tx_data.height,
+            time: tx_data.timestamp,
+            gasUsed: tx_data.gas_used,
+            gasWanted: tx_data.gas_wanted,
+            fee: tx_data.tx.auth_info.fee, //Не совсем понял, что выводить из fee, вывел все))
             sender: sender
         };
 

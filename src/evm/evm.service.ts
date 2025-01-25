@@ -5,9 +5,9 @@ export interface BlockData {
     height: number;
     hash: string;
     parentHash: string;
-    gasLimit: number;
-    gasUsed: number;
-    size: number;
+    gasLimit: number | null;
+    gasUsed: number | null;
+    size: number | null;
 }
 
 export interface TransactionData {
@@ -38,14 +38,14 @@ export class EvmService {
         if (!block) {
             throw new HttpException('Block not found', HttpStatus.NOT_FOUND);
         }
-
+        //Решил не делать приведение типов (parseInt(block.gasLimit, 16)), так как значения могут выходить за диапазон
         return {
-            height: parseInt(block.number, 16),
+            height: height,
             hash: block.hash,
             parentHash: block.parentHash,
-            gasLimit: parseInt(block.gasLimit, 16),
-            gasUsed: parseInt(block.gasUsed, 16),
-            size: parseInt(block.size, 16),
+            gasLimit: block.gasLimit ? block.gasLimit : null,
+            gasUsed: block.gasUsed ? block.gasUsed : null,
+            size: block.size ? block.size : null,
         };
         } catch (error) {
         throw new HttpException(
@@ -69,11 +69,11 @@ export class EvmService {
             hash: transaction.hash,
             to: transaction.to,
             from: transaction.from,
-            value: transaction.value ? transaction.value.toString() : null,
+            value: transaction.value ? transaction.value : null,
             input: transaction.input,
-            maxFeePerGas: transaction.maxFeePerGas?.toString() || null,
-            maxPriorityFeePerGas: transaction.maxPriorityFeePerGas?.toString() || null,
-            gasPrice: transaction.gasPrice?.toString() || null,
+            maxFeePerGas: transaction.maxFeePerGas ? transaction.maxFeePerGas : null,
+            maxPriorityFeePerGas: transaction.maxPriorityFeePerGas ? transaction.maxPriorityFeePerGas : null,
+            gasPrice: transaction.gasPrice ? transaction.gasPrice : null,
         };
         } catch (error) {
             console.error(`Error fetching transaction for hash: ${hash}`, error);
